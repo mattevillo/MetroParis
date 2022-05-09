@@ -10,7 +10,7 @@ import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
-import org.jgrapht.traverse.DepthFirstIterator;
+//import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.traverse.GraphIterator;
 
 import it.polito.tdp.metroparis.db.MetroDAO;
@@ -35,11 +35,6 @@ public class Model {
 		return this.fermate;
 	}
 	
-	public List<Fermata> calcolaPercorso(Fermata partenza, Fermata arrivo) {
-		creaGrafo() ;
-		visitaGrafo(partenza);
-		return null ;
-	}
 
 	public void creaGrafo() {
 		this.grafo = new SimpleDirectedGraph<Fermata, DefaultEdge>(DefaultEdge.class);
@@ -59,9 +54,23 @@ public class Model {
 //		System.out.println("Archi   = " + this.grafo.edgeSet().size());
 	}
 
+	public List<Fermata> calcolaPercorso(Fermata partenza, Fermata arrivo) {
+		creaGrafo() ;
+		Map<Fermata,Fermata> alberoInverso = visitaGrafo(partenza);
+		
+		Fermata corrente = arrivo ;
+		List<Fermata> percorso = new ArrayList<>() ;
+		
+		while(corrente != null) {
+			percorso.add(0, corrente);
+			corrente = alberoInverso.get(corrente) ;
+		}
+		
+		return percorso ;
+	}
+
 	
-	
-	public void visitaGrafo(Fermata partenza) {
+	public Map<Fermata,Fermata> visitaGrafo(Fermata partenza) {
 		GraphIterator<Fermata, DefaultEdge> visita = new BreadthFirstIterator<>(this.grafo, partenza);
 		
 		Map<Fermata,Fermata> alberoInverso = new HashMap<>() ;
@@ -73,13 +82,7 @@ public class Model {
 //			System.out.println(f);
 		}
 		
-		
-		// Ricostruiamo il percorso a partire dall'albero inverso (pseudo-code)
-//		List<Fermata> percorso = new ArrayList<>() ;
-//		fermata = arrivo
-//		while(fermata != null)
-//			fermata = alberoInverso.get(fermata)
-//			percorso.add(fermata)
+		return alberoInverso ;
 	}
 
 }
